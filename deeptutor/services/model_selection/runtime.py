@@ -31,9 +31,17 @@ def llm_config_from_resolved(resolved: ResolvedLLMConfig) -> LLMConfig:
 
 def resolve_llm_config_for_selection(selection: Any) -> LLMConfig:
     """Resolve the LLM config for a chat/session selection reference."""
+    import os
+
+    if os.getenv("DRCHEN_LLM_MODEL", "").strip():
+        return llm_config_from_resolved(resolve_llm_runtime_config())
+
     if selection is None:
         return llm_config_module.get_llm_config()
-    return llm_config_from_resolved(resolve_llm_runtime_config(llm_selection=selection))
+
+    return llm_config_from_resolved(
+        resolve_llm_runtime_config(llm_selection=selection)
+    )
 
 
 def activate_llm_selection(selection: Any) -> tuple[LLMConfig, Token[LLMConfig | None]]:
