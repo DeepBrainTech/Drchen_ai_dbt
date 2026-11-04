@@ -6199,6 +6199,7 @@
   "Modules": "Modules",
   "Module": "Module",
   "Stop DeepTutor before changing modules. Removing a module keeps your data.": "Stop DeepTutor before changing modules. Removing a module keeps your data.",
+  "This feature is not available in Dr. Chen AI.": "Diese Funktion ist in Dr. Chen AI nicht verfügbar.",
   "This module is not installed or is disabled.": "This module is not installed or is disabled.",
   "customize.title": "Seite anpassen",
   "customize.description": "Wähle die angezeigten Inhalte. Lernverlauf und installierte Module bleiben erhalten.",

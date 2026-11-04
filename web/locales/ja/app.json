@@ -6181,6 +6181,7 @@
   "Modules": "モジュール",
   "Module": "モジュール",
   "Stop DeepTutor before changing modules. Removing a module keeps your data.": "モジュールを変更する前にDeepTutorを停止してください。モジュールを削除してもデータは保持されます。",
+  "This feature is not available in Dr. Chen AI.": "この機能は Dr. Chen AI では利用できません。",
   "This module is not installed or is disabled.": "このモジュールはインストールされていないか、無効です。",
   "customize.title": "ページをカスタマイズ",
   "customize.description": "ここに表示する内容を選べます。学習履歴とインストール済みのモジュールはそのまま保持されます。",

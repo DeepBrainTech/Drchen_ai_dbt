@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { isDrChenHiddenCapability } from "@/lib/drchen-profile";
 import type { CapabilityDescriptor } from "./model";
 
 export type ToolName =
@@ -264,7 +265,8 @@ export function visibleCapabilityPresentations(
     .filter(
       (capability) =>
         capability.value !== "immersive_reading" &&
-        !capability.legacy,
+        !capability.legacy &&
+        !isDrChenHiddenCapability(capability.value),
     )
     .map((capability, sourceIndex) => ({ capability, sourceIndex }))
     .sort((left, right) => {

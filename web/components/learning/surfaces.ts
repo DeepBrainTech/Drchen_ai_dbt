@@ -1,6 +1,7 @@
 import { BookOpen, BookText, ClipboardCheck, Route, type LucideIcon } from 'lucide-react'
 import type { LearningKind } from '@/lib/learning-dashboard'
 import { BOOKS_HOME, MASTERY_HOME, PRACTICE_HOME, READING_HOME } from '@/lib/learning-routes'
+import { isDrChenHiddenRoute } from '@/lib/drchen-profile'
 
 export interface LearningSurface {
   kind: LearningKind | "practice"
@@ -89,6 +90,15 @@ export const LEARNING_SURFACES: readonly LearningSurface[] = [
   },
 
 ] as const
+
+/**
+ * The surfaces offered to learners. Existing records of a hidden surface
+ * (e.g. books) still resolve through `learningSurface`; only the entry
+ * points to create or browse them are hidden by the Dr. Chen AI profile.
+ */
+export const VISIBLE_LEARNING_SURFACES: readonly LearningSurface[] = LEARNING_SURFACES.filter(
+  surface => !isDrChenHiddenRoute(surface.href)
+)
 
 export const learningSurface = (kind: LearningKind): LearningSurface =>
   LEARNING_SURFACES.find(surface => surface.kind === (kind === "watching" ? "reading" : kind))!

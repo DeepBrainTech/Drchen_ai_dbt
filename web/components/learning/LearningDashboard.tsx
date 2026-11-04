@@ -28,7 +28,7 @@ import {
 } from './LearningShell'
 import { LearningCard } from './LearningCard'
 import { LearningWays } from './LearningWays'
-import { LEARNING_SURFACES, learningSurface } from './surfaces'
+import { LEARNING_SURFACES, VISIBLE_LEARNING_SURFACES, learningSurface } from './surfaces'
 
 export function LearningDashboard() {
   const { t } = useTranslation()
@@ -50,7 +50,7 @@ export function LearningDashboard() {
     >
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap gap-1" role="group" aria-label={t('navigation.learningFilter')}>
-          {[{ kind: 'all', title: 'navigation.allLearning' }, ...LEARNING_SURFACES].map(surface => <button key={surface.kind} type="button" aria-pressed={kind === surface.kind} onClick={() => { setKind(surface.kind as LearningKind | 'all'); setLimit(24) }} className={`rounded-full px-3 py-1.5 text-xs transition-colors ${kind === surface.kind ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/60'}`}>{t(surface.title)}</button>)}
+          {[{ kind: 'all', title: 'navigation.allLearning' }, ...VISIBLE_LEARNING_SURFACES].map(surface => <button key={surface.kind} type="button" aria-pressed={kind === surface.kind} onClick={() => { setKind(surface.kind as LearningKind | 'all'); setLimit(24) }} className={`rounded-full px-3 py-1.5 text-xs transition-colors ${kind === surface.kind ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/60'}`}>{t(surface.title)}</button>)}
         </div>
         <input aria-label={t('navigation.searchLearning')} placeholder={t('navigation.searchLearning')} value={query} onChange={event => { setQuery(event.target.value); setLimit(24) }} className="ml-auto h-9 rounded-lg border border-border bg-transparent px-3 text-xs outline-none focus:border-ring" />
       </div>

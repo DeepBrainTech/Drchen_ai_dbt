@@ -1,4 +1,5 @@
 import { CalendarDays } from 'lucide-react'
+import { isDrChenHiddenRoute } from '@/lib/drchen-profile'
 import { LEARNING_HUB } from '@/lib/learning-routes'
 import {
   Bot,
@@ -109,11 +110,13 @@ export function isNavActive(pathname: string, href: string) {
  * A learning policy hides every feature the account cannot call. Settings
  * stays, because the redacted page (theme, language) is still theirs.
  * ``allowedSurfaces === null`` means no policy: the full sidebar.
+ * Features hidden by the Dr. Chen AI profile are never visible.
  */
 export function navVisibleUnderPolicy(
   href: string,
   allowedSurfaces: readonly string[] | null,
 ): boolean {
+  if (isDrChenHiddenRoute(href)) return false
   if (allowedSurfaces === null) return true
   if (href === '/settings') return true
   const surfaces = NAV_BY_HREF.get(href)?.surfaces

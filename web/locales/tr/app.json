@@ -6181,6 +6181,7 @@
   "Modules": "Modüller",
   "Module": "Modül",
   "Stop DeepTutor before changing modules. Removing a module keeps your data.": "Modülleri değiştirmeden önce DeepTutor'u durdurun. Bir modülü kaldırmak verilerinizi silmez.",
+  "This feature is not available in Dr. Chen AI.": "Bu özellik Dr. Chen AI’da kullanılamıyor.",
   "This module is not installed or is disabled.": "Bu modül kurulu değil ya da devre dışı.",
   "customize.title": "Sayfayı özelleştir",
   "customize.description": "Burada nelerin görüneceğini seçin. Öğrenme geçmişiniz ve kurulu modülleriniz olduğu gibi kalır.",
