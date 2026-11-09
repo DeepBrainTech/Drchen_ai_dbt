@@ -10,6 +10,7 @@ import Tooltip from '@/shared/ui/Tooltip'
 import { useWorkspaceChoices } from '@/components/workspaces/useWorkspaceChoices'
 import { VersionBadge } from '@/components/sidebar/VersionBadge'
 import { clientEditionLabel } from '@/lib/version'
+import { DRCHEN_SIMPLIFIED } from '@/lib/drchen-profile'
 
 const GLYPH_TINTS = ['#e3655b', '#d9822b', '#c9a227', '#4f9d69', '#3d8fb8', '#6c6fd1', '#a35fc0', '#c25b8a']
 
@@ -40,7 +41,9 @@ export function WorkspaceChoiceList({ onChoose }: { onChoose?: () => void }) {
   const { active, choices, choose } = useWorkspaceChoices()
   return (
     <>
-      <div className="dt-menu-label">{t('Workspace')}</div>
+  {!DRCHEN_SIMPLIFIED && (
+    <div className="dt-menu-label">{t('Workspace')}</div>
+  )}
       {choices.map(row => (
         <button
           key={row.workspace_id || 'general'}
