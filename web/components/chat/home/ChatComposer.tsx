@@ -1121,7 +1121,7 @@ export default memo(function ChatComposer({
       : []),
   ];
   const answerMode: AnswerModeProps | undefined =
-    onPersonaSelectionChange || onAnswerByChange
+      !DRCHEN_SIMPLIFIED && (onPersonaSelectionChange || onAnswerByChange)
       ? {
           persona: onPersonaSelectionChange
             ? { value: personaSelection ?? "", onChange: onPersonaSelectionChange }
