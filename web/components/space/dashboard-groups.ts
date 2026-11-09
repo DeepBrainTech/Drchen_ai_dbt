@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import { SPACE_MCP_SURFACE, loadMcpSurface } from "@/components/mcp/surface";
+import { isDrChenHiddenRoute } from "@/lib/drchen-profile";
 import { getCliApps } from "@/lib/cli-apps-api";
 import { listSessions } from "@/lib/session-api";
 import { listNotebooks, listNotebookEntries } from "@/lib/notebook-api";
@@ -288,8 +289,9 @@ export function visibleGroups(
       ...group,
       items: group.items.filter(
         (item) =>
-          !item.requiresCapability ||
-          (isAvailable?.(item.requiresCapability) ?? false),
+          !isDrChenHiddenRoute(item.href) &&
+          (!item.requiresCapability ||
+            (isAvailable?.(item.requiresCapability) ?? false)),
       ),
     }))
     .filter((group) => group.items.length > 0);

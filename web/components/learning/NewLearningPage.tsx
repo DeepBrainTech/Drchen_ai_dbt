@@ -9,7 +9,7 @@ import { useModules } from '@/hooks/useModules'
 import { usePageCustomization } from '@/context/PageCustomizationContext'
 import { PageCustomizeButton } from '@/components/customization/PageCustomizeButton'
 import { navigateTask } from '@/lib/workspace-scope'
-import { LEARNING_SURFACES } from './surfaces'
+import { VISIBLE_LEARNING_SURFACES } from './surfaces'
 import {
   LearningShell,
   LearningSkeleton,
@@ -24,7 +24,7 @@ export default function NewLearningPage() {
   const auth = useAuthStatus()
   const inventory = useModules()
   const preferences = usePageCustomization()
-  const eligible = LEARNING_SURFACES.filter(
+  const eligible = VISIBLE_LEARNING_SURFACES.filter(
     item =>
       inventory.available(item.href) &&
       (!auth.learningPolicy ||
