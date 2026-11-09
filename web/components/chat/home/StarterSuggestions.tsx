@@ -19,6 +19,7 @@ import { activeWorkspaceId, scopedUrl } from "@/lib/workspace-scope";
 import { usePageCustomization } from "@/context/PageCustomizationContext";
 import { starterPrompts, type StarterGroup } from "@/lib/page-customization";
 import { apiFetch, apiUrl } from "@/lib/api";
+import { DRCHEN_SIMPLIFIED } from "@/lib/drchen-profile";
 
 interface Suggestion {
   /** The line the learner reads — names the specific thing worth doing next. */
@@ -70,7 +71,9 @@ const GUIDES: readonly { id: StarterGroup; icon: StarterIcon }[] = [
   { id: "solve", icon: SolveMark },
   { id: "practice", icon: PracticeMark },
   { id: "plan", icon: PlanMark },
-  { id: "research", icon: ResearchMark },
+  ...(!DRCHEN_SIMPLIFIED
+    ? [{ id: "research" as const, icon: ResearchMark }]
+    : []),
 ];
 
 /**
