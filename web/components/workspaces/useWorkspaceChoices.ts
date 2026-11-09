@@ -6,6 +6,7 @@ import { useActiveWorkspaceId } from '@/hooks/useActiveWorkspaceId'
 import { useChatWorkspaces } from '@/hooks/useChatWorkspaces'
 import { selectWorkspace } from '@/lib/workspace-scope'
 import { switchDestination } from '@/components/sidebar/page-sections'
+import { DRCHEN_SIMPLIFIED } from '@/lib/drchen-profile'
 
 /** The workspace this URL is scoped to, the ones it can switch to, and the switch. */
 export function useWorkspaceChoices() {
@@ -14,9 +15,11 @@ export function useWorkspaceChoices() {
   const active = useActiveWorkspaceId()
   const { workspaces } = useChatWorkspaces()
   const current = workspaces.find(row => row.workspace_id === active)
-  const currentName = active ? (current?.display_name ?? t('Workspace unavailable')) : t('General workspace')
+  const currentName = active
+  ? (current?.display_name ?? t('Workspace unavailable'))
+  : (DRCHEN_SIMPLIFIED ? 'Dr. Chen AI' : t('General workspace'))
   const choices = [
-    { workspace_id: '', display_name: t('General workspace') },
+    { workspace_id: '', display_name: DRCHEN_SIMPLIFIED ? 'Dr. Chen AI' : t('General workspace') },
     ...workspaces.filter(row => row.workspace_id === active || (!row.archived && row.status === 'ready')),
   ]
   const choose = (workspaceId: string) => {
