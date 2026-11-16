@@ -437,7 +437,9 @@ class PostgresSessionStore:
         """List this student's conversations, newest first."""
         import asyncio
         import json
+
         from psycopg.rows import dict_row
+
         from .postgres_config import connect_postgres
 
         def load_sessions():
@@ -649,12 +651,13 @@ class PostgresSessionStore:
         import asyncio
         import time
         import uuid
+
         from .protocol import (
-            ActiveTurnConflict,
-            SUBMISSION_REPLAY_FIELD,
-            SUBMISSION_USER_FIELD,
             SUBMISSION_ASSISTANT_FIELD,
             SUBMISSION_PREVIOUS_TURN_FIELD,
+            SUBMISSION_REPLAY_FIELD,
+            SUBMISSION_USER_FIELD,
+            ActiveTurnConflict,
         )
 
         def create():
