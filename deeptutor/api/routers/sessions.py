@@ -783,7 +783,7 @@ async def purge_session(session_id: str):
 
 @router.put("/{session_id}/branch-selection")
 async def update_branch_selection(session_id: str, payload: BranchSelectionRequest):
-    store = get_sqlite_session_store()
+    store = get_session_store()
     session = await store.get_session(session_id)
     if session is None:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -797,7 +797,7 @@ async def update_branch_selection(session_id: str, payload: BranchSelectionReque
 
 @router.delete("/{session_id}/messages/{message_id}")
 async def delete_turn_by_message(session_id: str, message_id: int):
-    store = get_sqlite_session_store()
+    store = get_session_store()
     result = await store.delete_turn_by_message(session_id, message_id)
     if result["was_active"]:
         raise HTTPException(

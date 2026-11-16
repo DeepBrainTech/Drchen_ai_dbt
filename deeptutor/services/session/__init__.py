@@ -1,5 +1,5 @@
 """Unified repository-backed session management."""
-
+import os
 from .protocol import SessionStoreProtocol
 from .sqlite_store import (
     SQLiteSessionStore,
@@ -35,6 +35,19 @@ def get_session_store() -> SessionStoreProtocol:
             store.store_scope = scope
             _pocketbase_store_instances[scope.cache_key] = store
         return _pocketbase_store_instances[scope.cache_key]
+
+    if os.getenv("DRCHEN_SESSION_BACKEND", "sqlite").lower() == "postgres":
+        from deeptutor.multi_user.context import get_current_user_or_none
+        from .postgres_store import PostgresSessionStore
+
+        user = get_current_user_or_none()
+        if user is None or not str(user.id).strip():
+            raise RuntimeError(
+                "PostgreSQL sessions require an authenticated user"
+            )
+
+        return PostgresSessionStore(user_id=str(user.id))
+
     return get_sqlite_session_store()
 
 
