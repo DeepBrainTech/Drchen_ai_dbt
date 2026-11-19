@@ -620,3 +620,6 @@ RUN sed -i 's/\r$//' /etc/supervisor/conf.d/programs.conf
 
 # Development ports
 EXPOSE 8001 3782
+
+# Default to the production image for deployment
+FROM production AS final

@@ -6180,6 +6180,7 @@
   "Modules": "Mô-đun",
   "Module": "Mô-đun",
   "Stop DeepTutor before changing modules. Removing a module keeps your data.": "Hãy dừng DeepTutor trước khi thay đổi mô-đun. Xóa một mô-đun không làm mất dữ liệu của bạn.",
+  "This feature is not available in Dr. Chen AI.": "Tính năng này không có trong Dr. Chen AI.",
   "This module is not installed or is disabled.": "Mô-đun này chưa được cài đặt hoặc đã bị tắt.",
   "customize.title": "Tùy chỉnh trang",
   "customize.description": "Chọn nội dung hiển thị tại đây. Lịch sử học tập và các mô-đun đã cài đặt của bạn vẫn được giữ nguyên.",

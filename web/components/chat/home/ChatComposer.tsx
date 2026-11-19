@@ -101,6 +101,7 @@ import Tooltip from "@/shared/ui/Tooltip";
 import { useCapabilityLabel } from "@/features/ui-layout/tokens";
 import { usePageCustomization } from "@/context/PageCustomizationContext";
 import { useUiLayout } from "@/hooks/useUiLayout";
+import { DRCHEN_SIMPLIFIED } from "@/lib/drchen-profile";
 
 interface PendingAttachment {
   type: string;
@@ -1120,7 +1121,7 @@ export default memo(function ChatComposer({
       : []),
   ];
   const answerMode: AnswerModeProps | undefined =
-    onPersonaSelectionChange || onAnswerByChange
+      !DRCHEN_SIMPLIFIED && (onPersonaSelectionChange || onAnswerByChange)
       ? {
           persona: onPersonaSelectionChange
             ? { value: personaSelection ?? "", onChange: onPersonaSelectionChange }
@@ -1142,7 +1143,7 @@ export default memo(function ChatComposer({
       : undefined;
   // Working with partners: DeepTutor still answers, having asked them first.
   const partnerLinks: PartnerLinkProps | undefined =
-    onSelectAgent || onSelectPartner || onSelectPartnerGroup
+      !DRCHEN_SIMPLIFIED && (onSelectAgent || onSelectPartner || onSelectPartnerGroup)
       ? {
           agents:
             onSelectAgent && connectedAgents.length

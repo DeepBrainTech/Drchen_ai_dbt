@@ -98,16 +98,28 @@ test("settings routes expose their configuration storage destinations", () => {
 
 test("voice and generation have independent pages and legacy destinations", () => {
   const keys = visibleSettingsPages(admin).map(page => page.key);
-  assert.ok(keys.includes("voice"));
-  assert.ok(keys.includes("multimodal"));
+
+  assert.ok(!keys.includes("voice"));
+  assert.ok(!keys.includes("multimodal"));
+  assert.ok(keys.includes("appearance"));
+  assert.ok(keys.includes("general"));
+
   for (const key of ["tts", "stt"]) {
     assert.equal(settingsAnchorHref(key), "/settings/voice");
-    assert.equal(legacySettingsDestination(`#${key}`, "?profile=saved"), "/settings/voice?profile=saved");
+    assert.equal(
+      legacySettingsDestination(`#${key}`, "?profile=saved"),
+      "/settings/voice?profile=saved"
+    );
   }
+
   for (const key of ["image", "video", "imagegen", "videogen"]) {
     assert.equal(settingsAnchorHref(key), "/settings/multimodal");
   }
+
   for (const key of ["voice", "multimodal", "tts", "stt", "imagegen", "videogen"]) {
-    assert.equal(storagePathFor(`/settings/${key}`), "data/user/settings/model_catalog.json");
+    assert.equal(
+      storagePathFor(`/settings/${key}`),
+      "data/user/settings/model_catalog.json"
+    );
   }
 });

@@ -13,9 +13,10 @@ import {
   visibleGroups,
   type DashboardGroup,
 } from '@/components/space/dashboard-groups'
-import { LEARNING_SURFACES } from '@/components/learning/surfaces'
+import { VISIBLE_LEARNING_SURFACES } from '@/components/learning/surfaces'
 import { categoryForPath } from '@/lib/navigation'
 import { navVisibleUnderPolicy } from './nav-entries'
+import { isDrChenHiddenRoute } from '@/lib/drchen-profile'
 
 export interface PageEntry {
   href: string
@@ -78,7 +79,7 @@ export function pageSections({
       pages: [
         { href: '/learning/new', label: t('navigation.createLearning'), icon: Plus },
         { href: '/learning', label: t('navigation.allLearning'), icon: LayoutGrid },
-        ...LEARNING_SURFACES.filter(surface => surfaceAllowed(surface.kind)).map(surface => ({
+        ...VISIBLE_LEARNING_SURFACES.filter(surface => surfaceAllowed(surface.kind)).map(surface => ({
           href: surface.href,
           label: t(surface.title),
           icon: surface.icon,
@@ -109,9 +110,13 @@ export function pageSections({
       ],
     },
   ]
-  return sections.map(section =>
-    section.account ? { ...section, pages: section.pages.map(page => ({ ...page, account: true })) } : section
-  )
+  return sections
+    // The Dr. Chen AI profile hides whole features; a shelf left empty goes too.
+    .map(section => ({ ...section, pages: section.pages.filter(page => !isDrChenHiddenRoute(page.href)) }))
+    .filter(section => section.pages.length > 0)
+    .map(section =>
+      section.account ? { ...section, pages: section.pages.map(page => ({ ...page, account: true })) } : section
+    )
 }
 
 /**

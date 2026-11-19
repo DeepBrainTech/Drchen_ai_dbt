@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import ipaddress
 import json
+import os
 from typing import Any
 from urllib.parse import urlparse
 
@@ -67,13 +68,13 @@ class SearchProviderSpec:
     missing we raise instead of quietly running the query through a different
     search engine, so a configured-and-billed provider never turns into
     DuckDuckGo behind the user's back. It also marks the China-hosted providers,
-    where the fallback is not merely surprising but unreachable — DuckDuckGo is
+    where the fallback is not merely surprising but unreachable - DuckDuckGo is
     blocked on the networks those are chosen for, so a silent fallback would
     turn "no API key" into a mystery timeout.
 
     The provider registry (``deeptutor/services/search/providers``), the
     Settings dropdown (``deeptutor/api/routers/settings.py``) and the web
-    connection-field form all derive from this table — keep new providers here
+    connection-field form all derive from this table â€” keep new providers here
     and they show up everywhere at once.
     """
 
@@ -149,7 +150,7 @@ class EmbeddingProviderSpec:
 
     Note on `default_api_base`: as of v1.3.0 this is the **fully-qualified
     embedding endpoint URL** (e.g. ``https://api.openai.com/v1/embeddings``),
-    not a base. Adapters use the configured URL verbatim — no path appending.
+    not a base. Adapters use the configured URL verbatim â€” no path appending.
     """
 
     label: str
@@ -915,10 +916,15 @@ def resolve_llm_runtime_config(
     ``service_name`` selects which catalog service supplies the profile and
     model. It is ``llm`` for everything the user drives; the ``task`` service
     is the same shape and stands in for it on the calls DeepTutor makes on its
-    own. The provider pool it falls back to stays the LLM one either way —
+    own. The provider pool it falls back to stays the LLM one either way â€”
     a task profile that names a bare model still resolves against the
     credentials configured for chat.
     """
+    # Server-controlled AI configuration.
+    server_model = os.getenv("DRCHEN_LLM_MODEL", "").strip()
+    server_api_key = os.getenv("DRCHEN_LLM_API_KEY", "").strip()
+    server_api_base = os.getenv("DRCHEN_LLM_BASE_URL", "").strip()
+
     catalog_service = service or get_model_catalog_service()
     loaded = _with_personal_llm_profiles(_load_catalog(catalog))
     # Parse the payload once: ``apply_llm_selection_to_catalog`` would otherwise
@@ -964,21 +970,37 @@ def resolve_llm_runtime_config(
     if (model or {}).get("context_window_source") == "default":
         context_window = None
 
+        # Use the model configured by the server when provided.
+    if server_model:
+        resolved_model = server_model
+
+    if server_model and not server_api_key:
+        raise ValueError(
+            "DRCHEN_LLM_API_KEY must be configured when DRCHEN_LLM_MODEL is set."
+        )
+
     provider_pool = _collect_provider_pool(loaded)
+
+    if server_model:
+        binding_hint = "openai"
+
     spec = _choose_resolved_provider(
         hint=binding_hint,
         model=resolved_model,
-        api_key=active_api_key,
-        api_base=active_api_base or None,
-        provider_pool=provider_pool,
+        api_key=server_api_key if server_model else active_api_key,
+        api_base=server_api_base if server_model else (active_api_base or None),
+        provider_pool={} if server_model else provider_pool,
     )
 
     # Profiles written before ``api_format`` existed carry only ``wire_api``.
     # Settle the protocol before choosing its vendor-specific default address.
-    if configured_api_format is None:
+    if server_model:
+        api_format = api_format_for_provider("openai", spec)
+    elif configured_api_format is None:
         api_format = api_format_from_legacy(spec, configured_wire_api)
     else:
         api_format = api_format_for_provider(configured_api_format, spec)
+
     wire_api = wire_api_for_provider(wire_api_from_api_format(api_format), spec)
 
     mapped = (
@@ -986,14 +1008,30 @@ def resolve_llm_runtime_config(
         if (profile or {}).get("provider_ref") or (model or {}).get("provider_ref")
         else provider_pool.get(spec.name)
     )
-    api_key = active_api_key or (mapped.api_key if mapped else "")
-    api_base = active_api_base or ((mapped.api_base or "") if mapped else "")
-    api_version = active_api_version or ((mapped.api_version or "") if mapped else "")
+    api_key = (
+        server_api_key
+        if server_model
+        else active_api_key or (mapped.api_key if mapped else "")
+    )
+
+    api_base = (
+        server_api_base
+        if server_model
+        else active_api_base or ((mapped.api_base or "") if mapped else "")
+    )
+
+    api_version = (
+        None if server_model
+        else active_api_version or ((mapped.api_version or "") if mapped else "")
+    )
     if not api_base:
         api_base = spec.default_api_base_for(api_format)
     if not api_key and spec.is_local:
         api_key = "sk-no-key-required"
-    extra_headers = active_extra_headers or ((mapped.extra_headers or {}) if mapped else {})
+    extra_headers = (
+        {} if server_model
+        else active_extra_headers or ((mapped.extra_headers or {}) if mapped else {})
+    )
     _register_catalog_capabilities(loaded)
 
     return ResolvedLLMConfig(
@@ -1558,7 +1596,7 @@ def search_fallback_candidates(
     choice, not the whole turn. Candidates are the user's other fully-configured
     search profiles (they opted into those providers by configuring them), then
     the credential-free fallback. Providers whose credentials are missing never
-    enter the chain, and ``none`` — an explicit "search is off" — is excluded.
+    enter the chain, and ``none`` â€” an explicit "search is off" â€” is excluded.
     """
     name = (requested or "").strip().lower()
     loaded = _load_catalog(catalog)

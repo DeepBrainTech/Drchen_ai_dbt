@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { usePathname } from "next/navigation";
 
 import { capabilityForPath } from "@/lib/capability-routes";
+import { isDrChenHiddenRoute } from "@/lib/drchen-profile";
 
 import { RequireCapability } from "./RequireCapability";
 
@@ -22,6 +23,9 @@ export default function CapabilityGate({
   const capability = capabilityForPath(pathname);
   const { modules, error, reload } = useModules();
   const { t } = useTranslation();
+  if (isDrChenHiddenRoute(pathname)) {
+    return <p className="p-6">{t("This feature is not available in Dr. Chen AI.")}</p>;
+  }
   if (error) return <button onClick={reload}>{t("Retry")}</button>;
   if (!modules) return <div aria-busy="true">{t("Loading...")}</div>;
   if (!moduleRouteAvailable(pathname, modules)) {

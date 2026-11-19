@@ -11,7 +11,7 @@ import { AnimatePresence, m as motion, useReducedMotion, type Transition } from 
 import { ArrowUpRight, ArrowRight, Check, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 type LearningKind = LearningSurface['kind']
-import { LEARNING_SURFACES, type LearningSurface } from './surfaces'
+import { VISIBLE_LEARNING_SURFACES, type LearningSurface } from './surfaces'
 
 const FOCUSABLE = 'a[href], input:not([disabled]), select:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
 const tileClass = (accent: string) =>
@@ -27,7 +27,7 @@ export function LearningWays() {
   const id = useId()
   const sharedId = (part: string, kind: LearningKind) => `${id}-${kind}-${part}`
   const close = useCallback(() => setOpenKind(null), [])
-  const open = LEARNING_SURFACES.find(surface => surface.kind === openKind)
+  const open = VISIBLE_LEARNING_SURFACES.find(surface => surface.kind === openKind)
   const spring: Transition = reduceMotion
     ? { duration: 0 }
     : { type: 'spring', stiffness: 340, damping: 34, mass: 0.9 }
@@ -39,7 +39,7 @@ export function LearningWays() {
           {t('Ways to learn')}
         </h2>
         <div className={pageGridClass(4)}>
-          {LEARNING_SURFACES.map((surface, index) => {
+          {VISIBLE_LEARNING_SURFACES.map((surface, index) => {
             const opened = openKind === surface.kind
             return (
               <motion.div
