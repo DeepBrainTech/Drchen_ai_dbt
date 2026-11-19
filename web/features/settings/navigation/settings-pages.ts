@@ -119,15 +119,30 @@ const extraPages: SettingsLeaf[] = [
   },
 ]
 
+const CUSTOMER_SETTINGS_KEYS = new Set([
+  'general',
+  'appearance',
+  'progress',
+  'learner-profile',
+  'guardian',
+  'archive',
+  'about',
+])
+
 export function visibleSettingsPages(access: SettingsAccess): SettingsLeaf[] {
+  if (!access.resolved) return []
+
   return [
     ...extraPages,
-    ...SETTINGS_CATEGORIES.filter(category => isSettingsCategoryVisible(category, access))
+    ...SETTINGS_CATEGORIES
+      .filter(category => isSettingsCategoryVisible(category, access))
       .flatMap(category => category.children ?? [{ ...category, tile: '' }])
       .filter(
-        leaf => isSettingsLeafVisible(leaf, access) && resolveSettingsKey(leaf.key) === leaf.key
+        leaf =>
+          isSettingsLeafVisible(leaf, access) &&
+          resolveSettingsKey(leaf.key) === leaf.key
       ),
-  ]
+  ].filter(page => CUSTOMER_SETTINGS_KEYS.has(page.key))
 }
 
 export function settingsPageLabel(key: string, fallback: Lang): Lang {
