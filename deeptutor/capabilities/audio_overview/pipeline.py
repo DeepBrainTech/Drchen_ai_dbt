@@ -409,9 +409,55 @@ class AudioOverviewPipeline:
 
         speech = self._speech_func
         if speech is None:
+            import os
             from deeptutor.services.voice import synthesize_speech as synthesize_speech_impl
+            from deeptutor.services.config.provider_runtime import resolve_tts_runtime_config
 
-            speech = synthesize_speech_impl
+            try:
+                resolve_tts_runtime_config()
+                speech = synthesize_speech_impl
+            except ValueError as exc:
+                if "No active TTS model" not in str(exc):
+                    raise
+
+                audio_key = os.getenv("DRCHEN_LLM_API_KEY", "").strip()
+                if not audio_key:
+                    raise AudioOverviewError(
+                        "Audio generation is unavailable: no TTS provider is configured."
+                    ) from exc
+
+                audio_base = os.getenv(
+                    "DRCHEN_LLM_BASE_URL", "https://api.openai.com/v1"
+                ).strip()
+
+                audio_catalog = {
+                    "services": {
+                        "tts": {
+                            "active_profile_id": "audio-fallback",
+                            "active_model_id": "audio-fallback-model",
+                            "profiles": [{
+                                "id": "audio-fallback",
+                                "name": "Audio Overview OpenAI",
+                                "binding": "openai",
+                                "base_url": audio_base,
+                                "api_key": audio_key,
+                                "models": [{
+                                    "id": "audio-fallback-model",
+                                    "name": "tts-1",
+                                    "model": "tts-1",
+                                    "voice": "alloy",
+                                }],
+                            }],
+                        }
+                    }
+                }
+
+                async def speech_with_fallback(text, **kwargs):
+                    return await synthesize_speech_impl(
+                        text, catalog=audio_catalog, **kwargs
+                    )
+
+                speech = speech_with_fallback
 
         host_voice = request_config.host_voice
         expert_voice = request_config.expert_voice
@@ -419,8 +465,12 @@ class AudioOverviewPipeline:
             from deeptutor.services.config.provider_runtime import resolve_tts_runtime_config
             from deeptutor.services.voice.options import voice_model_options
 
-            tts = resolve_tts_runtime_config()
+            tts = resolve_tts_runtime_config(
+                catalog=audio_catalog if "audio_catalog" in locals() else None
+            )
             choices = voice_model_options(tts.provider_name, "tts", tts.model).get("voices", [])
+            if not choices and tts.provider_name == "openai" and tts.model == "tts-1":
+                choices = [{"id": "alloy"}, {"id": "nova"}]
             host_voice = host_voice or tts.voice
             expert_voice = expert_voice or next(
                 (str(item["id"]) for item in choices if item.get("id") != host_voice), None

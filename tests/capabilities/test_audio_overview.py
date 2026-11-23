@@ -359,3 +359,62 @@ def test_mp3_segments_are_remuxed_into_one_playable_file(tmp_path: Path) -> None
         check=False,
     )
     assert decoded.returncode == 0
+
+
+@pytest.mark.asyncio
+async def test_audio_overview_accepts_uploaded_pdf_without_kb(monkeypatch):
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+
+    from deeptutor.capabilities.audio_overview.capability import AudioOverviewCapability
+    from deeptutor.core.context import Attachment, UnifiedContext
+
+    captured = {}
+
+    async def fake_generate_script(self, *, context, **kwargs):
+        captured["document_text"] = context.answer
+        raise RuntimeError("PDF_CONTENT_VERIFIED")
+
+    from deeptutor.capabilities.audio_overview.pipeline import AudioOverviewPipeline
+
+    monkeypatch.setattr(
+        AudioOverviewPipeline,
+        "generate_script",
+        fake_generate_script,
+    )
+
+    context = UnifiedContext(
+        user_message="Create an audio overview",
+        knowledge_bases=[],
+        attachments=[
+            Attachment(
+                type="file",
+                filename="sample.pdf",
+                mime_type="application/pdf",
+                extracted_text="This PDF explains cloud computing.",
+            )
+        ],
+        runtime=SimpleNamespace(
+            workspace=SimpleNamespace(
+                output_dir=".",
+                logical_output_dir=".",
+                workspace_id="test",
+            )
+        ),
+    )
+
+    from contextlib import asynccontextmanager
+
+    @asynccontextmanager
+    async def fake_stage(*args, **kwargs):
+        yield
+
+    stream = SimpleNamespace(
+        stage=fake_stage,
+        sources=AsyncMock(),
+    )
+
+    with pytest.raises(RuntimeError, match="PDF_CONTENT_VERIFIED"):
+        await AudioOverviewCapability().run(context, stream)
+
+    assert "This PDF explains cloud computing." in captured["document_text"]
