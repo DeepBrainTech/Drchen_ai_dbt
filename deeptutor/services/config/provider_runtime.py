@@ -1398,6 +1398,23 @@ def resolve_stt_runtime_config(
     profile, model = _active_profile_and_model(loaded, catalog_service, "stt")
     resolved_model = _as_str((model or {}).get("model"))
     if not resolved_model:
+        import os
+        fallback_key = os.getenv("DRCHEN_LLM_API_KEY", "").strip()
+        if fallback_key:
+            return STTConfig(
+                model="gpt-4o-mini-transcribe",
+                provider_name="openai",
+                adapter=STT_PROVIDERS["openai"].adapter,
+                request_style=STT_PROVIDERS["openai"].request_style,
+                auth_style=STT_PROVIDERS["openai"].auth_style,
+                api_key=fallback_key,
+                app_id="",
+                resource_id="",
+                base_url="https://api.openai.com/v1",
+                api_version=None,
+                extra_headers={},
+                language=None,
+            )
         raise ValueError("No active STT model is configured. Set it in Settings > Voice.")
 
     provider = _canonical_voice_provider(_as_str((profile or {}).get("binding")), STT_PROVIDERS)
