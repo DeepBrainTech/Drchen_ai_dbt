@@ -77,6 +77,18 @@ async def parse_chat_pdf_attachments(
             except Exception as exc:
                 logger.info("Configured parser failed for chat PDF %s: %s", filename, exc)
                 error = str(exc)
+        if not text and not fallback_text and path is not None:
+            cap = min(
+                limits.max_chars_per_doc,
+                limits.max_chars_total - total_chars,
+            )
+            if cap > 0:
+                try:
+                    fallback_text = await asyncio.to_thread(
+                        _extract_native_pdf_text, path, cap
+                    )
+                except Exception as exc:
+                    logger.warning("Native PDF fallback failed: %s", exc)
         if text:
             cap = min(limits.max_chars_per_doc, limits.max_chars_total - total_chars)
             image_locations = _pdf_image_locations(fallback_text, text)
@@ -160,3 +172,25 @@ def _replace_context(contexts: list[str], filename: str, text: str, error: str) 
             contexts[index] = replacement
             return
     contexts.append(replacement)
+
+
+def _extract_native_pdf_text(path, cap: int) -> str:
+    """Extract readable PDF text when the configured parser fails."""
+    import fitz
+
+    parts = []
+    remaining = cap
+
+    with fitz.open(str(path)) as document:
+        for page in document:
+            if remaining <= 0:
+                break
+            text = page.get_text("text").strip()
+            if not text:
+                continue
+            chunk = f"--- Page {page.number + 1} ---\n{text}\n"
+            chunk = chunk[:remaining]
+            parts.append(chunk)
+            remaining -= len(chunk)
+
+    return "".join(parts).strip()
