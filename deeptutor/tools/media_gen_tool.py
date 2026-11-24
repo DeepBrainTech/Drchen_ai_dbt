@@ -305,4 +305,187 @@ class VideogenTool(BaseTool):
         )
 
 
-__all__ = ["ImagegenTool", "VideogenTool"]
+
+
+class AudiogenTool(BaseTool):
+    """Generate playable MP3 narration and educational podcasts."""
+
+    def get_definition(self) -> ToolDefinition:
+        return ToolDefinition(
+            name="audiogen",
+            description=(
+                "Generate real MP3 audio for narration, podcasts, lessons "
+                "and skill demonstrations. Use this tool instead of Python "
+                "libraries such as gTTS, pydub or pyttsx3. "
+                "Provide dialogue as lines beginning with Teacher: or Student:. "
+                "After generation, call workspace_present with the returned path."
+            ),
+            parameters=[
+                ToolParameter(
+                    name="prompt",
+                    type="string",
+                    description="Complete narration or teacher-student dialogue.",
+                ),
+            ],
+        )
+
+    async def execute(self, **kwargs: Any) -> ToolResult:
+        import asyncio
+        import os
+
+        from deeptutor.services.voice import synthesize_speech
+        from deeptutor.services.config.provider_runtime import resolve_tts_runtime_config
+        from deeptutor.services.voice.options import voice_model_options
+        from deeptutor.capabilities.audio_overview.pipeline import _render_audio
+        from deeptutor.services.sandbox.artifacts import collect_public_artifacts
+
+        script = str(kwargs.get("prompt") or "").strip()
+
+        if not script or len(script) > 12000:
+            return ToolResult(
+                content="Provide a script between 1 and 12000 characters.",
+                success=False,
+            )
+
+        workspace_id = str(kwargs.get("_workspace_id") or "")
+        workspace_dir = kwargs.get("_workspace_dir")
+
+        if not workspace_id or not workspace_dir:
+            return ToolResult(
+                content="No active workspace is available for audio generation.",
+                success=False,
+            )
+
+        try:
+            catalog = None
+
+            try:
+                tts = resolve_tts_runtime_config()
+            except ValueError as exc:
+                if "No active TTS model" not in str(exc):
+                    raise
+
+                key = os.getenv("DRCHEN_LLM_API_KEY", "").strip()
+                if not key:
+                    return ToolResult(
+                        content="Audio provider is not configured.",
+                        success=False,
+                    )
+
+                catalog = {
+                    "services": {
+                        "tts": {
+                            "active_profile_id": "audio-fallback",
+                            "active_model_id": "audio-fallback-model",
+                            "profiles": [{
+                                "id": "audio-fallback",
+                                "name": "DrChenAI Audio",
+                                "binding": "openai",
+                                "base_url": "https://api.openai.com/v1",
+                                "api_key": key,
+                                "models": [{
+                                    "id": "audio-fallback-model",
+                                    "name": "tts-1",
+                                    "model": "tts-1",
+                                    "voice": "alloy",
+                                }],
+                            }],
+                        }
+                    }
+                }
+
+                tts = resolve_tts_runtime_config(catalog=catalog)
+
+            choices = voice_model_options(
+                tts.provider_name, "tts", tts.model
+            ).get("voices", [])
+
+            if not choices and tts.provider_name == "openai" and tts.model == "tts-1":
+                choices = [{"id": "alloy"}, {"id": "nova"}]
+
+            teacher_voice = tts.voice
+            student_voice = next(
+                (str(v["id"]) for v in choices if v.get("id") != teacher_voice),
+                None,
+            )
+
+            segments = []
+            current_speaker = "teacher"
+            for line in script.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+
+                match = re.match(
+                    r"^(Teacher|Student|Host|Expert):\s*(.*)$",
+                    line,
+                    re.IGNORECASE,
+                )
+
+                if match:
+                    current_speaker = (
+                        "student" if match.group(1).lower()
+                        in {"student", "expert"} else "teacher"
+                    )
+                    line = match.group(2).strip()
+
+                if line:
+                    segments.append((current_speaker, line))
+
+            if not segments or len(segments) > 40:
+                return ToolResult(
+                    content="Provide between 1 and 40 dialogue segments.",
+                    success=False,
+                )
+
+            if any(len(text) > 4000 for _, text in segments):
+                return ToolResult(
+                    content="Keep each dialogue segment below 4000 characters.",
+                    success=False,
+                )
+
+            if any(role == "student" for role, _ in segments) and not student_voice:
+                return ToolResult(
+                    content="The audio provider does not offer a second voice.",
+                    success=False,
+                )
+
+            audio_parts = []
+
+            for role, text in segments:
+                voice = student_voice if role == "student" else teacher_voice
+                audio, content_type = await synthesize_speech(
+                    text,
+                    voice=voice,
+                    response_format="mp3",
+                    catalog=catalog,
+                )
+                audio_parts.append((audio, content_type))
+
+            run_dir, workspace_id = _run_dir(
+                workspace_dir, "audiogen", workspace_id=workspace_id
+            )
+
+            await asyncio.to_thread(
+                _render_audio, audio_parts, run_dir, "drchenai-podcast"
+            )
+
+            artifacts = collect_public_artifacts(
+                str(run_dir), workspace_id=workspace_id
+            )
+
+            return _artifact_result(
+                artifacts,
+                empty_message="Audio generation produced no saved files.",
+                workspace_id=workspace_id,
+                kind="audio",
+            )
+
+        except Exception as exc:
+            logger.warning("Audio generation failed: %s", type(exc).__name__)
+            return ToolResult(
+                content="Audio generation failed. Please try again.",
+                success=False,
+            )
+
+__all__ = ["ImagegenTool", "VideogenTool", "AudiogenTool"]

@@ -1529,7 +1529,7 @@ class AgenticLoopPipeline:
         # (``execute_tool_call``), so a long-running tool no longer has to pose
         # as a retrieval to stream its progress. What it still needs from here
         # is the call_kind the frontend renders it by.
-        if tool_name in ("imagegen", "videogen"):
+        if tool_name in ("imagegen", "videogen", "audiogen"):
             return derive_trace_metadata(
                 tool_meta,
                 label=self._t("labels.tool_call", default="Tool call"),

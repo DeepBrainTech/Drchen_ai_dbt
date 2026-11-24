@@ -267,6 +267,7 @@ def compose_enabled_tools(
             composed.append(tool_name)
     composed.extend(str(name) for name in capability_owned if str(name).strip())
     for always_on in (
+        "audiogen",
         "write_memory",
         "learning_status",
         "learning_update",
