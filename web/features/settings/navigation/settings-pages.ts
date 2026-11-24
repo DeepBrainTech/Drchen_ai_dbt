@@ -1,4 +1,4 @@
-import { Activity, Archive, BarChart3, Bot, Settings2 } from 'lucide-react'
+import { Activity, Archive, BarChart3, Bot, Settings2, Mic, UserRound } from 'lucide-react'
 import {
   SETTINGS_CATEGORIES,
   isSettingsCategoryVisible,
@@ -11,24 +11,22 @@ import type { LucideIcon } from 'lucide-react'
 import type { SettingsAccess } from './settings-access'
 
 export const SETTINGS_PAGE_GROUPS: { label: Lang; keys: string[] }[] = [
-  { label: { en: 'Personal', zh: '个人' }, keys: ['general', 'workspace', 'data-migration', 'appearance', 'usage'] },
   {
-    label: { en: 'Models & services', zh: '模型与服务' },
-    keys: ['connections', 'llm', 'task-models', 'embedding', 'search', 'voice', 'multimodal'],
+    label: { en: 'Preferences', zh: 'Preferences' },
+    keys: ['general', 'appearance', 'learner-profile', 'customer-voice'],
   },
   {
-    label: { en: 'Learning & conversation', zh: '学习与对话' },
-    keys: ['starters', 'attachments', 'video-learning', 'learner-profile', 'progress', 'guardian', 'memory'],
+    label: { en: 'Learning', zh: 'Learning' },
+    keys: ['progress', 'guardian'],
   },
   {
-    label: { en: 'Features & integrations', zh: '功能与集成' },
-    keys: ['tools', 'capabilities', 'agent-claude-code', 'knowledge'],
+    label: { en: 'Privacy & data', zh: 'Privacy & data' },
+    keys: ['account', 'archive'],
   },
   {
-    label: { en: 'System', zh: '系统' },
-    keys: ['network', 'status', 'about'],
+    label: { en: 'Support', zh: 'Support' },
+    keys: ['about'],
   },
-  { label: { en: 'Archived', zh: '已归档' }, keys: ['archive'] },
 ]
 
 /**
@@ -60,6 +58,22 @@ export function settingsPageFamily(key: string): string[] {
 }
 
 const extraPages: SettingsLeaf[] = [
+  {
+    key: 'account',
+    label: { en: 'Account', zh: 'Account' },
+    blurb: { en: 'Manage your account and profile', zh: 'Account preferences' },
+    icon: UserRound,
+    href: '/settings/account',
+    tile: '',
+  },
+  {
+    key: 'customer-voice',
+    label: { en: 'Voice', zh: 'Voice' },
+    blurb: { en: 'Manage spoken replies and playback preferences', zh: 'Voice preferences' },
+    icon: Mic,
+    href: '/settings/customer-voice',
+    tile: '',
+  },
   {
     key: 'progress',
     label: { en: 'Learning progress', zh: '学习进度' },
@@ -99,7 +113,7 @@ const extraPages: SettingsLeaf[] = [
     key: 'general',
     label: { en: 'General', zh: '常规' },
     blurb: {
-      en: 'Interface language, layout, response language, and setup help',
+      en: 'Manage your language and response preferences',
       zh: '界面语言、布局、回复语言与配置帮助',
     },
     icon: Settings2,
@@ -120,6 +134,8 @@ const extraPages: SettingsLeaf[] = [
 ]
 
 const CUSTOMER_SETTINGS_KEYS = new Set([
+  'account',
+  'customer-voice',
   'general',
   'appearance',
   'progress',
@@ -146,6 +162,12 @@ export function visibleSettingsPages(access: SettingsAccess): SettingsLeaf[] {
 }
 
 export function settingsPageLabel(key: string, fallback: Lang): Lang {
+  if (key === 'archive') return { en: 'Data controls', zh: 'Data controls' }
+
+  if (key === 'learner-profile') return { en: 'Personalization', zh: 'Personalization' }
+
+  if (key === 'about') return { en: 'Help & About', zh: 'Help & About' }
+
   if (key === 'llm') return { en: 'Language models', zh: '语言模型' }
   if (key === 'agent-claude-code') return { en: 'Partners & agents', zh: '伙伴与智能体' }
   if (key === 'starters') return { en: 'Conversation', zh: '对话' }

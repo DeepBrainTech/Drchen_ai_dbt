@@ -125,7 +125,10 @@ export default function ArchivedChatsSettingsSection() {
   return (
     <div>
       <div className="flex flex-wrap items-start justify-between gap-x-4">
-        <SettingsPageHeader title={t("Archived chats")} />
+        <SettingsPageHeader
+          title={t("Data controls")}
+          description={t("Manage your archived conversations and control your learning history.")}
+        />
         <button
           type="button"
           disabled={loading || !!busy || !count}
@@ -164,6 +167,10 @@ export default function ArchivedChatsSettingsSection() {
           )}
           {t("Delete all archived chats")}
         </button>
+      </div>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-base font-semibold">{t("Archived chats")}</h2>
+        <span className="text-sm text-[var(--muted-foreground)]">{count} {t("archived")}</span>
       </div>
       <div className="mb-6 flex flex-wrap gap-2">
         <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[var(--border)] px-3 py-2">

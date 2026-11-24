@@ -15,8 +15,8 @@ const fields: Array<[keyof LearnerProfile, string]> = [
   ["grade_level", "Grade level"],
   ["curriculum", "Curriculum"],
   ["language", "Preferred language"],
-  ["reading_level", "Reading level"],
-  ["explanation_style", "Explanation style"],
+  ["reading_level", "Preferred reading level"],
+  ["explanation_style", "Preferred explanation style"],
 ];
 
 export default function LearnerProfileSettingsPage() {
@@ -51,16 +51,16 @@ export default function LearnerProfileSettingsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-8">
-      <h1 className="text-xl font-semibold">{t("Learner profile")}</h1>
+      <h1 className="text-xl font-semibold">{t("Personalization")}</h1>
       <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-        {t("Personalize explanations and reading support for your account.")}
+        {t("Tell DrChenAI how you prefer to learn and receive explanations.")}
       </p>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-5 rounded-xl border border-[var(--border)] p-5 sm:grid-cols-2">
         {fields.map(([key, label]) => (
           <label key={key} className="grid gap-1 text-sm">
             <span>{t(label)}</span>
             <input
-              disabled={status === "loading"}
+              disabled={status === "loading" || status === "error"}
               type={key === "age" ? "number" : "text"}
               min={key === "age" ? 3 : undefined}
               max={key === "age" ? 120 : undefined}

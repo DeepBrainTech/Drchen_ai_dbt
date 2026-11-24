@@ -55,7 +55,7 @@ const Memory = dynamic(
   },
 );
 const About = dynamic(
-  () => import("@/features/settings/sections/AboutSettingsSection"),
+  () => import("@/features/settings/sections/CustomerAboutSettingsSection"),
   {
     loading,
   },
@@ -168,7 +168,19 @@ const Multimodal = dynamic(
   { loading },
 );
 
+const CustomerVoice = dynamic(
+  () => import("@/features/settings/sections/CustomerVoiceSettingsSection"),
+  { loading },
+);
+
+const CustomerAccount = dynamic(
+  () => import("@/features/settings/sections/CustomerAccountSettingsSection"),
+  { loading },
+);
+
 const PAGES: Record<string, React.ComponentType> = {
+  account: CustomerAccount,
+  "customer-voice": CustomerVoice,
   "data-migration": DataMigration,
   voice: Voice,
   multimodal: Multimodal,

@@ -35,37 +35,35 @@ export default function LearningProgressPage() {
 
   const progress = records?.progress ?? [];
   const activities = records?.activities ?? [];
-  const hasRecords = progress.length > 0 || activities.length > 0;
+
 
   return (
     <FeaturePage>
-      <PageHeader title={t("Learning progress")} description={t("Review your own reading and learning activity.")} />
+      <PageHeader title={t("Learning progress")} description={t("Track your learning journey, reading progress, and recent activities.")} />
       {error ? (
         <p className="mt-8 text-sm text-red-600">{t("Unable to load learning progress")}</p>
       ) : records === null ? (
         <p className="mt-8 text-sm text-[var(--muted-foreground)]">{t("Loading progress")}</p>
-      ) : !hasRecords ? (
-        <p className="mt-8 text-sm text-[var(--muted-foreground)]">{t("No learning activity yet")}</p>
       ) : (
         <>
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <div className="rounded-md border border-[var(--border)] p-4">
-              <span className="block text-xs text-[var(--muted-foreground)]">{t("Materials")}</span>
-              <strong className="mt-1 block text-xl">{progress.length}</strong>
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+              <span className="block text-xs text-[var(--muted-foreground)]">{t("Reading materials")}</span>
+              <strong className="mt-2 block text-3xl font-semibold tracking-tight">{progress.length}</strong>
             </div>
-            <div className="rounded-md border border-[var(--border)] p-4">
-              <span className="block text-xs text-[var(--muted-foreground)]">{t("Recent learning actions")}</span>
-              <strong className="mt-1 block text-xl">{activities.length}</strong>
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+              <span className="block text-xs text-[var(--muted-foreground)]">{t("Learning activity")}</span>
+              <strong className="mt-2 block text-3xl font-semibold tracking-tight">{activities.length}</strong>
             </div>
           </div>
           <section className="mt-6">
             <h2 className="text-sm font-semibold">{t("Reading progress")}</h2>
             {progress.length === 0 ? (
-              <p className="mt-3 text-sm text-[var(--muted-foreground)]">{t("No reading progress yet")}</p>
+              <p className="mt-3 text-sm text-[var(--muted-foreground)]">{t("Start reading a learning material to track your progress here.")}</p>
             ) : (
               <ul className="mt-3 grid gap-3">
                 {progress.map((record) => (
-                  <li key={record.material_id} className="rounded-md border border-[var(--border)] p-4">
+                  <li key={record.material_id} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
                     <div className="flex items-center justify-between gap-3">
                       <span className="min-w-0 truncate font-medium">{materialTitles[record.material_id] || record.material_id}</span>
                       <span className="text-xs text-[var(--muted-foreground)]">
@@ -73,7 +71,7 @@ export default function LearningProgressPage() {
                       </span>
                     </div>
                     <div
-                      className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--border)]"
+                      className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--border)]"
                       role="progressbar"
                       aria-valuemin={0}
                       aria-valuemax={100}
@@ -91,13 +89,13 @@ export default function LearningProgressPage() {
             )}
           </section>
           <section className="mt-6">
-            <h2 className="text-sm font-semibold">{t("Recent learning actions")}</h2>
+            <h2 className="text-sm font-semibold">{t("Learning activity")}</h2>
             {activities.length === 0 ? (
-              <p className="mt-3 text-sm text-[var(--muted-foreground)]">{t("No learning actions yet")}</p>
+              <p className="mt-3 text-sm text-[var(--muted-foreground)]">{t("Your recent learning activities will appear here.")}</p>
             ) : (
               <ul className="mt-3 grid gap-3">
                 {activities.map((record) => (
-                  <li key={record.activity_id} className="rounded-md border border-[var(--border)] p-4">
+                  <li key={record.activity_id} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
                     <span className="font-medium">{materialTitles[record.material_id] || record.material_id}</span>
                     <span className="mt-1 block text-xs text-[var(--muted-foreground)]">
                       {record.action} · {record.extension_id} · {t("Locator")} {record.locator}
