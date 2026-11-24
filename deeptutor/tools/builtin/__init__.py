@@ -2243,6 +2243,7 @@ CONFIGURABLE_BUILTIN_TOOL_NAMES: tuple[str, ...] = (
     "write_memory",
     "learning_status",
     "learning_update",
+    "educational_video",
     "audiogen",
     "read_skill",
     "list_notebook",

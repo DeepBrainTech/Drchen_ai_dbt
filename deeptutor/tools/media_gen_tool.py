@@ -307,6 +307,159 @@ class VideogenTool(BaseTool):
 
 
 
+
+class EducationalVideoTool(BaseTool):
+    """Create narrated educational MP4 videos with subtitles."""
+
+    def get_definition(self) -> ToolDefinition:
+        return ToolDefinition(
+            name="educational_video",
+            description=(
+                "Create a playable educational MP4 video with narrated slides, "
+                "fade animations and timed subtitles. Use this tool for educational "
+                "videos instead of MoviePy or Python scripts. Provide scenes as "
+                "a JSON array containing title, content and narration strings. "
+                "For a two-minute video, write approximately 260 words of narration. "
+                "After generation, call workspace_present with the returned path."
+            ),
+            parameters=[
+                ToolParameter(
+                    name="scenes",
+                    type="string",
+                    description="JSON array of scenes with title, content and narration.",
+                ),
+            ],
+        )
+
+    async def execute(self, **kwargs: Any) -> ToolResult:
+        import asyncio
+        import json
+        import os
+        import tempfile
+        import shutil
+
+        from deeptutor.services.voice import synthesize_speech
+        from deeptutor.services.config.provider_runtime import resolve_tts_runtime_config
+        from deeptutor.services.sandbox.artifacts import collect_public_artifacts
+        from deeptutor.tools.educational_video_renderer import render_educational_video
+
+        try:
+            raw = kwargs.get("scenes", "")
+            scenes = json.loads(raw) if isinstance(raw, str) else raw
+
+            if not isinstance(scenes, list) or not 1 <= len(scenes) <= 15:
+                raise ValueError("Provide between 1 and 15 scenes.")
+
+            prepared = []
+            for scene in scenes:
+                if not isinstance(scene, dict):
+                    raise ValueError("Each scene must be an object.")
+
+                title = str(scene.get("title", "")).strip()
+                content = str(scene.get("content", "")).strip()
+                narration = str(scene.get("narration", "")).strip()
+
+                if not title or not content or not narration:
+                    raise ValueError("Every scene requires title, content and narration.")
+
+                if len(title) > 70 or len(content) > 180 or len(narration) > 1500:
+                    raise ValueError("Keep scene text concise.")
+
+                prepared.append({
+                    "title": title,
+                    "content": content,
+                    "narration": narration,
+                })
+
+            if sum(len(x["narration"].split()) for x in prepared) > 750:
+                raise ValueError("Keep total narration below 750 words.")
+
+            workspace_id = str(kwargs.get("_workspace_id") or "")
+            workspace_dir = kwargs.get("_workspace_dir")
+
+            if not workspace_id or not workspace_dir:
+                raise ValueError("No active workspace is available.")
+
+            catalog = None
+
+            try:
+                tts = resolve_tts_runtime_config()
+            except ValueError as exc:
+                if "No active TTS model" not in str(exc):
+                    raise
+
+                key = os.getenv("DRCHEN_LLM_API_KEY", "").strip()
+
+                if not key:
+                    raise ValueError("Audio provider is not configured.")
+
+                catalog = {"services": {"tts": {
+                    "active_profile_id": "video-tts",
+                    "active_model_id": "video-tts-model",
+                    "profiles": [{
+                        "id": "video-tts",
+                        "name": "DrChenAI Video Narration",
+                        "binding": "openai",
+                        "base_url": "https://api.openai.com/v1",
+                        "api_key": key,
+                        "models": [{
+                            "id": "video-tts-model",
+                            "name": "tts-1",
+                            "model": "tts-1",
+                            "voice": "alloy",
+                        }],
+                    }],
+                }}}
+
+                tts = resolve_tts_runtime_config(catalog=catalog)
+
+            for scene in prepared:
+                audio, _ = await synthesize_speech(
+                    scene["narration"],
+                    voice=tts.voice,
+                    response_format="mp3",
+                    catalog=catalog,
+                )
+
+                if not audio:
+                    raise RuntimeError("Empty narration audio.")
+
+                scene["audio"] = audio
+
+            run_dir, workspace_id = _run_dir(
+                workspace_dir,
+                "educational_video",
+                workspace_id=workspace_id,
+            )
+
+            with tempfile.TemporaryDirectory() as temp:
+                video = await asyncio.to_thread(
+                    render_educational_video, prepared, temp
+                )
+                shutil.copy2(video, run_dir / "educational-video.mp4")
+
+            artifacts = collect_public_artifacts(
+                str(run_dir), workspace_id=workspace_id
+            )
+
+            return _artifact_result(
+                artifacts,
+                empty_message="Video generation produced no saved file.",
+                workspace_id=workspace_id,
+                kind="video",
+            )
+
+        except Exception as exc:
+            logger.warning(
+                "Educational video generation failed: %s",
+                type(exc).__name__,
+            )
+            return ToolResult(
+                content="Educational video generation failed. Check the scene format and video rendering configuration.",
+                success=False,
+            )
+
+
 class AudiogenTool(BaseTool):
     """Generate playable MP3 narration and educational podcasts."""
 
