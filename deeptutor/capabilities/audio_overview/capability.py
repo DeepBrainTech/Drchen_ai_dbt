@@ -26,7 +26,9 @@ class AudioOverviewCapability(TurnCapability):
         i18n = StatusI18n(self.name, context.language, module="capabilities")
         kb_name = str(context.knowledge_bases[0]) if context.knowledge_bases else ""
         note_id = str(context.metadata.get("note_document_id") or "")
-        if not kb_name and not note_id:
+        if not kb_name and not note_id and not any(
+            a.extracted_text.strip() for a in context.attachments
+        ):
             raise AudioOverviewError(
                 i18n.t("missing_kb", "Attach a knowledge base to create an audio overview.")
             )
@@ -85,9 +87,37 @@ class AudioOverviewCapability(TurnCapability):
                         )
                     ],
                 )
-            else:
+            elif kb_name:
                 retrieved = await pipeline.retrieve(
                     topic=topic, kb_name=kb_name, request_config=request_config
+                )
+            else:
+                from deeptutor.capabilities.audio_overview.pipeline import (
+                    RetrievedContext,
+                    SourceCitation,
+                )
+
+                documents = [
+                    a for a in context.attachments
+                    if a.extracted_text.strip()
+                ]
+
+                combined_text = "\n\n".join(
+                    f"Document: {a.filename}\n{a.extracted_text}"
+                    for a in documents
+                )[:16000]
+
+                retrieved = RetrievedContext(
+                    answer=combined_text,
+                    citations=[
+                        SourceCitation(
+                            source_id=f"attachment-{i + 1}",
+                            title=a.filename or "Uploaded document",
+                            locator="",
+                            snippet=a.extracted_text[:2000],
+                        )
+                        for i, a in enumerate(documents)
+                    ],
                 )
             if retrieved.citations:
                 await stream.sources(

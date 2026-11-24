@@ -153,6 +153,7 @@ RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.l
     libreoffice-writer \
     libreoffice-calc \
     libreoffice-impress \
+    ffmpeg \
     fonts-noto-cjk \
     fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
@@ -620,3 +621,6 @@ RUN sed -i 's/\r$//' /etc/supervisor/conf.d/programs.conf
 
 # Development ports
 EXPOSE 8001 3782
+
+# Default to the production image for deployment
+FROM production AS final

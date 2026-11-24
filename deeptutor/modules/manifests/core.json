@@ -156,6 +156,14 @@
       "class_path": "deeptutor.tools.media_gen_tool:VideogenTool",
       "order": 39
     },
+    "educational_video": {
+      "class_path": "deeptutor.tools.media_gen_tool:EducationalVideoTool",
+      "order": 41
+    },
+    "audiogen": {
+      "class_path": "deeptutor.tools.media_gen_tool:AudiogenTool",
+      "order": 40
+    },
     "consult_subagent": {
       "class_path": "deeptutor.capabilities.subagent.tools:ConsultSubagentTool",
       "order": 79

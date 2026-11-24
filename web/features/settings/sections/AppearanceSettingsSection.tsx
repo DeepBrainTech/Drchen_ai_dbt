@@ -77,14 +77,14 @@ export default function AppearanceSettingsPage() {
       <SettingsPageHeader
         title={t("Appearance")}
         description={t(
-          "Customize the visual theme, learning text, and code blocks. Apply changes using the bar below.",
+          "Make DrChenAI look and feel the way you prefer. Apply your changes when ready.",
         )}
       />
 
       <SettingSection
         title={t("Theme")}
         description={t(
-          "Pick the colour palette and interface style. Each tile previews the theme it applies.",
+          "Choose your preferred appearance.",
         )}
       >
         <div className="py-3.5">
@@ -92,11 +92,11 @@ export default function AppearanceSettingsPage() {
               a new browser) → Default (pure-white neutral; theme id "snow"
               kept for stored preferences) → warm-light Cream → warm-dark
               Dark → cool-dark Glass. */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
             {(
               [
                 { id: "system", label: t("System") },
-                { id: "snow", label: t("Default") },
+                { id: "snow", label: t("Light") },
                 { id: "light", label: t("Cream") },
                 { id: "dark", label: t("Dark") },
                 { id: "glass", label: t("Glass") },
@@ -114,22 +114,22 @@ export default function AppearanceSettingsPage() {
           <p className="mt-4 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]/80">
             {t("System follows the device's light or dark appearance.")}{" "}
             {t(
-              "Default is a clean pure-white theme with a blue accent. Cream is warm and paper-like with a terracotta accent. Dark keeps Cream's warmth on near-black. Glass adds translucent purple panels on a deep gradient.",
+              "Choose Light, Cream, Dark or Glass to match your preference.",
             )}
           </p>
         </div>
       </SettingSection>
 
       <SettingSection
-        title={t("Learning text")}
+        title={t("Text & readability")}
         description={t(
-          "Adjust messages, lessons, and practice text. Your changes stay in this preview until you apply them. Immersive Reading has its own display controls.",
+          "Customize text size and spacing for comfortable reading.",
         )}
       >
         <SettingRow
           title={t("Text size")}
           description={t(
-            "Scale learning content while keeping navigation and controls the same size.",
+            "Adjust the size of messages and learning content.",
           )}
           control={
             <select
@@ -211,7 +211,7 @@ export default function AppearanceSettingsPage() {
       </SettingSection>
 
       <SettingSection
-        title={t("Code blocks")}
+        title={t("Code appearance")}
         description={t(
           "Choose how code snippets look across the app after you apply changes.",
         )}
@@ -221,7 +221,7 @@ export default function AppearanceSettingsPage() {
             {t("Preview")}
           </div>
           <p className="mb-3 mt-1 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-            {t("Updates live as you change the settings below.")}
+            {t("Preview your code appearance.")}
           </p>
           <RichCodeBlockPreview
             raw={CODE_BLOCK_PREVIEW_SNIPPET}
@@ -232,7 +232,7 @@ export default function AppearanceSettingsPage() {
         <SettingRow
           title={t("Syntax theme")}
           description={t(
-            "Select the Prism theme used for highlighted code blocks.",
+            "Choose your preferred code highlighting style.",
           )}
           control={
             <select

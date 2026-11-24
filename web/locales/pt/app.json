@@ -6180,6 +6180,7 @@
   "Modules": "Módulos",
   "Module": "Módulo",
   "Stop DeepTutor before changing modules. Removing a module keeps your data.": "Pare o DeepTutor antes de alterar módulos. Remover um módulo mantém seus dados.",
+  "This feature is not available in Dr. Chen AI.": "Este recurso não está disponível no Dr. Chen AI.",
   "This module is not installed or is disabled.": "Este módulo não está instalado ou está desabilitado.",
   "customize.title": "Personalizar página",
   "customize.description": "Escolha o que aparece aqui. Seu histórico de aprendizagem e os módulos instalados permanecem intactos.",

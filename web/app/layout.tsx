@@ -28,7 +28,7 @@ const fontSerif = Lora({
 export const viewport: Viewport = { interactiveWidget: "resizes-content" };
 
 export const metadata: Metadata = {
-  title: "DeepTutor",
+  title: "DrChenAI",
   description: "Agent-native intelligent learning companion",
   icons: {
     icon: [

@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 GENERATION_TOOL_SERVICES: dict[str, str] = {
     "imagegen": "imagegen",
     "videogen": "videogen",
+    "audiogen": "tts",
+    "educational_video": "tts",
 }
 
 
@@ -38,6 +40,12 @@ def drop_unconfigured_generation_tools(tools: list[str]) -> list[str]:
     except Exception:
         logger.debug("generation-tool config probe failed; dropping them", exc_info=True)
         configured = set()
+    import os
+    if os.getenv("DRCHEN_LLM_API_KEY", "").strip():
+        configured.update(
+            name for name in present
+            if name in {"audiogen", "educational_video"}
+        )
     return [name for name in tools if name not in GENERATION_TOOL_SERVICES or name in configured]
 
 

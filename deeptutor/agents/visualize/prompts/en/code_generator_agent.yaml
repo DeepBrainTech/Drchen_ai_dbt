@@ -168,6 +168,27 @@ rules_html: |
   - Within these constraints, choose layout, color, and interaction freely to
     make the page clear, beautiful, and easy to learn from.
 
+  Runtime reliability (mandatory):
+  - Prefer native Canvas 2D, SVG and vanilla JavaScript for mathematics,
+    physics simulations, animations and interactive graphs.
+  - Do not use external libraries when native browser APIs are sufficient.
+  - Never use THREE.OrbitControls with modern Three.js builds.
+  - If 3D is essential, use compatible pinned ES module versions for
+    Three.js and its addons. Otherwise use native Canvas.
+  - Initialize all controls, graphs and animations after the DOM is ready.
+  - Draw the initial simulation and graphs immediately, before Play is pressed.
+  - Use requestAnimationFrame for animation with correct elapsed time.
+  - Play, Pause, Reset and sliders must have working event handlers.
+  - Prevent duplicate animation loops.
+  - Handle initialization errors and display a readable error message
+    instead of leaving a blank panel.
+  - Use responsive layouts without excessive empty space.
+  - Display calculated scientific values with correct units.
+  - For physics simulations, ensure equations match the simulated behavior.
+  - Never display ideal-motion formulas as exact when drag is enabled.
+  - Before returning code, check all variables, DOM IDs, dependencies,
+    initialization order and event handlers for consistency.
+
 user_template: |
   User request:
   {user_input}

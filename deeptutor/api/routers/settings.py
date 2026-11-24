@@ -2095,11 +2095,11 @@ async def fetch_models_from_provider(payload: FetchModelsPayload):
                     "then retry. If already logged in, check Copilot access and connectivity."
                 ),
             ) from None
-        logger.exception("Failed to fetch models from %s", base_url)
+        logger.error("Failed to fetch provider models")
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Provider request failed: {exc}",
-        ) from exc
+            detail="Could not fetch provider models. Check server configuration.",
+        ) from None
 
     return {"models": [{"id": model_id, "name": model_id} for model_id in model_ids]}
 

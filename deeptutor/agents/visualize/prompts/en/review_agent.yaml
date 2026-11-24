@@ -11,6 +11,12 @@ repair_system: |
   - chartjs: return STRICT JSON (double-quoted keys; no functions, comments, or
     trailing commas) including "type" and "data".
   - mermaid: start with a valid diagram keyword; node IDs without spaces.
+  - html: check dependency compatibility, DOM initialization,
+    canvas dimensions, event handlers and animation loops.
+  - Fix incompatible Three.js and OrbitControls usage.
+  - Prefer native browser APIs when repairing broken external dependencies.
+  - Ensure initial graphs and simulation objects are visible.
+  - Preserve functional controls and scientific accuracy.
   - Preserve the original intent and content. Change only what's needed.
 
   Return a JSON object. No text outside the JSON.

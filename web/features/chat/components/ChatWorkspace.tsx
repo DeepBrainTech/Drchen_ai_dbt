@@ -31,6 +31,7 @@ import {
   X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { DRCHEN_SIMPLIFIED } from "@/lib/drchen-profile";
 import type { SelectedRecord } from "@/lib/notebook-selection-types";
 import type { SelectedHistorySession } from "@/components/chat/HistorySessionPicker";
 import type { SelectedQuestionEntry } from "@/components/chat/QuestionBankPicker";
@@ -793,10 +794,15 @@ export default function ChatWorkspace() {
   // Time-of-day greeting: seeded once on mount from the user's local clock so
   // the heading stays stable while they're on the page. State (not useMemo)
   // because the random pick would otherwise mismatch SSR ↔ client hydration.
-  const [welcomeGreeting, setWelcomeGreeting] = useState<string>(
-    "What would you like to learn?",
-  );
-  useEffect(() => {
+const [welcomeGreeting, setWelcomeGreeting] = useState<string>(
+  DRCHEN_SIMPLIFIED
+    ? "Welcome to Dr. Chen AI"
+    : "What would you like to learn?",
+);
+
+useEffect(() => {
+    if (DRCHEN_SIMPLIFIED) return;
+
     const hour = new Date().getHours();
     let bucket: string[];
     if (hour >= 5 && hour < 12) {
